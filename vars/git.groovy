@@ -22,7 +22,7 @@ def isBranchExisted(credentialsId, epoUrl, branchName) {
 def haveDiffBranch(credentialsId, repoName, sourceBranch, destinationBranch) {
     def commitDiff = ""
     withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASSWORD')]) {
-        def commitDiff = sh(
+        commitDiff = sh(
             script: """
                 gh api repos/${repoName}/compare/${destinationBranch}...${sourceBranch} \
                     --jq '.total_commits'
