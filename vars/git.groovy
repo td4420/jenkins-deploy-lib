@@ -170,7 +170,7 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
         .collect { it.trim() }
         .findAll { it }
 
-    def featurePrs = [:]
+    def featurePrs = []
     def featurePr = ''
     def goLivePr = ''
 
