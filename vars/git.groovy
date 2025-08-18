@@ -180,7 +180,7 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
     branches.each { featureBranch ->
         // Create pull request from feature branch into release branch and auto merge
         featurePr = createPullRequestFlow(env.GITHUB_CREDENTIALS_ID, repoUrl, featureBranch, params.RELEASE_BRANCH, true)
-        featurePrs << "PR merge ${featureBranch} into ${params.RELEASE_BRANCH} : ${featurePr}"
+        featurePrs << "- PR merge ${featureBranch} into ${params.RELEASE_BRANCH} : ${featurePr}"
     }
 
     //Create pull request from release branch into main/master branch
@@ -188,7 +188,7 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
 
     def result = []
     if (goLivePr) {
-        result << "PR merge ${params.RELEASE_BRANCH} into ${env.MAIN_BRANCH_PWA} : ${goLivePr}"
+        result << "- PR merge ${params.RELEASE_BRANCH} into ${env.MAIN_BRANCH_PWA} : ${goLivePr}"
     }
 
     result.addAll(featurePrs)

@@ -1,5 +1,5 @@
-def call(String message) {
-    echo "📢 Sending notification: ${message}"
+def sendNotification(String message) {
+    echo "📢 Sending notification:\n ${message}"
 }
 
 def notifyCreatePrGoLive(remotes) {
@@ -15,9 +15,9 @@ def notifyCreatePrGoLive(remotes) {
         def file = "prs-${remote}.txt"
         msgLines << "**PRs created for ${remote} PWA**".toUpperCase()
         if (fileExists(file)) {
-            msgLines << "- ${readFile(file).trim()}"
+            msgLines << "${readFile(file).trim()}"
         }
     }
 
-    notify(msgLines.join("\n"))
+    sendNotification(msgLines.join("\n"))
 }
