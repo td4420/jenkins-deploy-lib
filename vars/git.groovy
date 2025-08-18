@@ -197,14 +197,14 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
     return result.join("\n")
 }
 
-def createPrForAllRemote(repoUrls) {
+def createPrForAllRemote(repoUrls, remotes) {
     def branches = [:]
     repoUrls.eachWithIndex { repoUrl, index ->
-        branches["Create-PR-${index}"] = {
+        branches["Create-PR-${remotes[index]}"] = {
             node {
                 def prLines = createPullRequestGoLiveFullFlow(repoUrl)
                 // persist this branch’s result so we can aggregate after parallel
-                def outFile = "prs-${index}.txt"
+                def outFile = "prs-${remotes[index]}.txt"
                 writeFile file: outFile, text: (prLines instanceof List ? prLines.join("\n") : "${prLines}")
                 archiveArtifacts artifacts: outFile, fingerprint: true, onlyIfSuccessful: false
             }
