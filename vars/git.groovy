@@ -164,3 +164,29 @@ def createPullRequestFlow(credentialsId, repoUrl, sourceBranch, destinationBranc
 
     return "https://github.com/${repoName}/pull/${prNumber}"
 }
+
+def createPullRequestGoLiveFullFlow(featureBranches, credentialsId, repoUrl, releaseBranch, mainBranch) {
+    def branches = params.FEATURE_BRANCH
+        .split(',')
+        .collect { it.trim() }
+        .findAll { it }
+
+    def prMap = [:]
+    def featurePr = ''
+    def goLivePr = ''
+
+    branches.each { featureBranch ->
+        //Create release branch if not existed
+        git.createBranch(credentialsId, repoUrl, releaseBranch, mainBranch)
+
+        // Create pull request from feature branch into release branch and auto merge
+        featurePr = git.createPullRequestFlow(credentialsId, repoUrl, featureBranch, releaseBranch, true)
+        prMap["PR merge ${featureBranch} into ${releaseBranch}"] = featurePr
+
+        //Create pull request from release branch into main/master branch
+        goLivePr = git.createPullRequestFlow(credentialsId, repoUrl, releaseBranch, mainBranch, false)
+        prMap["PR merge ${releaseBranch} into ${mainBranch}"] = goLivePr
+    }
+
+    return prMap.collect { k, v -> "${k} : ${v}" }.join("\n");
+}
