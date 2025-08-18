@@ -1,6 +1,3 @@
-import groovy.json.JsonSlurper
-import groovy.json.JsonOutput
-
 /**
 * Check if branch is existed
 */
@@ -218,14 +215,14 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
     return result.join("\n")
 }
 
-def createPrForAllRemote(remotes, remotePaths) {
+def createPrForAllRemote(repoUrls) {
     def branches = [:]
-    remotes.each { remote ->
-        branches["Create-PR-${remote}"] = {
+    repoUrls.eachWithIndex { repoUrl, index ->
+        branches["Create-PR-${repoUrl}"] = {
             node {
-                def prLines = createPullRequestGoLiveFullFlow(remotePaths[remote])
+                def prLines = createPullRequestGoLiveFullFlow(repoUrl)
                 // persist this branch’s result so we can aggregate after parallel
-                def outFile = "prs-${remote}.txt"
+                def outFile = "prs-${repoUrl}.txt"
                 writeFile file: outFile, text: (prLines instanceof List ? prLines.join("\n") : "${prLines}")
                 archiveArtifacts artifacts: outFile, fingerprint: true, onlyIfSuccessful: false
             }
