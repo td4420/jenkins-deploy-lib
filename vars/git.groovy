@@ -203,7 +203,10 @@ def createPrForAllRemote(repoUrls, remotes) {
         branches["Create-PR-${remotes[index]}"] = {
             node {
                 def prLines = createPullRequestGoLiveFullFlow(repoUrl)
-                notify("PRs created for ${remotes[index]}:\n${prLines}")
+                // persist this branch’s result so we can aggregate after parallel
+                def outFile = "prs-${remotes[index]}.txt"
+                writeFile file: outFile, text: (prLines instanceof List ? prLines.join("\n") : "${prLines}")
+                stash name: "prs-${remote}", includes: outFile, useDefaultExcludes: false
             }
         }
     }
