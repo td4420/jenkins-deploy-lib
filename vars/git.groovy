@@ -177,14 +177,14 @@ def createPullRequestGoLiveFullFlow(featureBranches, credentialsId, repoUrl, rel
 
     branches.each { featureBranch ->
         //Create release branch if not existed
-        git.createBranch(credentialsId, repoUrl, releaseBranch, mainBranch)
+        createBranch(credentialsId, repoUrl, releaseBranch, mainBranch)
 
         // Create pull request from feature branch into release branch and auto merge
-        featurePr = git.createPullRequestFlow(credentialsId, repoUrl, featureBranch, releaseBranch, true)
+        featurePr = createPullRequestFlow(credentialsId, repoUrl, featureBranch, releaseBranch, true)
         prMap["PR merge ${featureBranch} into ${releaseBranch}"] = featurePr
 
         //Create pull request from release branch into main/master branch
-        goLivePr = git.createPullRequestFlow(credentialsId, repoUrl, releaseBranch, mainBranch, false)
+        goLivePr = createPullRequestFlow(credentialsId, repoUrl, releaseBranch, mainBranch, false)
         prMap["PR merge ${releaseBranch} into ${mainBranch}"] = goLivePr
     }
 
