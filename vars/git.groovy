@@ -164,24 +164,6 @@ def createPullRequestFlow(credentialsId, repoUrl, sourceBranch, destinationBranc
     return prUrl
 }
 
-def prepareRepoUrl() {
-    def REMOTE_PATHS = [
-        "abenson"   : "github.com/AbensonDigital/abenson-pwa.git",
-        "automatic" : "github.com/AbensonDigital/abenson-pwa-automatic.git",
-        "electro"   : "github.com/AbensonDigital/abenson-pwa-electro.git",
-        "abensonhome": "github.com/AbensonDigital/abenson-pwa-abensonhome.git"
-    ]
-
-    if (!REMOTE_PATHS.containsKey(params.REMOTE)) {
-        error "❌ Invalid REMOTE: ${params.REMOTE}"
-    }
-
-    // env.PWA_REPO_URL = REMOTE_PATHS[REMOTE]
-    // env.REPO_NAME = 'AbensonDigital/abenson-pwa'
-
-    env.PWA_REPO_URL = 'https://github.com/td4420/tn2001.git'
-}
-
 def createPullRequestGoLiveFullFlow(repoUrl) {
     def branches = params.FEATURE_BRANCH
         .split(',')
@@ -218,11 +200,11 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
 def createPrForAllRemote(repoUrls) {
     def branches = [:]
     repoUrls.eachWithIndex { repoUrl, index ->
-        branches["Create-PR-${repoUrl}"] = {
+        branches["Create-PR-${index}"] = {
             node {
                 def prLines = createPullRequestGoLiveFullFlow(repoUrl)
                 // persist this branch’s result so we can aggregate after parallel
-                def outFile = "prs-${repoUrl}.txt"
+                def outFile = "prs-${index}.txt"
                 writeFile file: outFile, text: (prLines instanceof List ? prLines.join("\n") : "${prLines}")
                 archiveArtifacts artifacts: outFile, fingerprint: true, onlyIfSuccessful: false
             }
