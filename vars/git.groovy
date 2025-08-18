@@ -144,12 +144,14 @@ def createPullRequestFlow(credentialsId, repoUrl, sourceBranch, destinationBranc
     }
 
     def prNumber = getPullRequest(credentialsId, repoName, sourceBranch, destinationBranch)
-
+    def prUrl = ""
     if (!prNumber) {
         echo "No existing PR found — creating new PR."
         prNumber = createPullRequest(credentialsId, repoName, sourceBranch, destinationBranch)
+        prUrl = prNumber
     } else {
         echo "A PR already exists (#${prNumber})."
+        prUrl = "https://github.com/${repoName}/pull/${prNumber}"
     }
 
     //Auto merge this pull request
@@ -162,7 +164,7 @@ def createPullRequestFlow(credentialsId, repoUrl, sourceBranch, destinationBranc
         }
     }
 
-    return "https://github.com/${repoName}/pull/${prNumber}"
+    return prUrl
 }
 
 def createPullRequestGoLiveFullFlow(featureBranches, credentialsId, repoUrl, releaseBranch, mainBranch) {
