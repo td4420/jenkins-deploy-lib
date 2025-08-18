@@ -4,12 +4,13 @@ import groovy.json.JsonOutput
 /**
 * Check if branch is existed
 */
-def isBranchExisted(credentialsId, epoUrl, branchName) {
+def isBranchExisted(credentialsId, repoUrl, branchName) {
     def branchExists = ""
     withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASSWORD')]) {
         branchExists = sh(
             script: "git ls-remote --heads ${repoUrl} ${branchName} | wc -l",
             returnStdout: true
+            
         ).trim()
     }
 
