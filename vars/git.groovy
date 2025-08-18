@@ -206,7 +206,7 @@ def createPrForAllRemote(repoUrls, remotes) {
                 // persist this branch’s result so we can aggregate after parallel
                 def outFile = "prs-${remotes[index]}.txt"
                 writeFile file: outFile, text: (prLines instanceof List ? prLines.join("\n") : "${prLines}")
-                stash name: "prs-${remote}", includes: outFile, useDefaultExcludes: false
+                stash name: "prs-${remotes[index]}", includes: outFile, useDefaultExcludes: false
             }
         }
     }
