@@ -160,35 +160,77 @@ def createPullRequestFlow(credentialsId, repoUrl, sourceBranch, destinationBranc
         try {
             mergePullRequest(credentialsId, repoName, prNumber)
         } catch (err) {
-            echo "⚠️ Auto-merge failed for PR #${prNumber}: ${err.getMessage()}"
+            prUrl = "⚠️ Auto-merge failed for PR #${prUrl}: ${err.getMessage()}"
         }
     }
 
     return prUrl
 }
 
-def createPullRequestGoLiveFullFlow(featureBranches, credentialsId, repoUrl, releaseBranch, mainBranch) {
+def prepareRepoUrl() {
+    def REMOTE_PATHS = [
+        "abenson"   : "github.com/AbensonDigital/abenson-pwa.git",
+        "automatic" : "github.com/AbensonDigital/abenson-pwa-automatic.git",
+        "electro"   : "github.com/AbensonDigital/abenson-pwa-electro.git",
+        "abensonhome": "github.com/AbensonDigital/abenson-pwa-abensonhome.git"
+    ]
+
+    if (!REMOTE_PATHS.containsKey(params.REMOTE)) {
+        error "❌ Invalid REMOTE: ${params.REMOTE}"
+    }
+
+    // env.PWA_REPO_URL = REMOTE_PATHS[REMOTE]
+    // env.REPO_NAME = 'AbensonDigital/abenson-pwa'
+
+    env.PWA_REPO_URL = 'https://github.com/td4420/tn2001.git'
+}
+
+def createPullRequestGoLiveFullFlow(repoUrl) {
     def branches = params.FEATURE_BRANCH
         .split(',')
         .collect { it.trim() }
         .findAll { it }
 
     def prMap = [:]
+    def featurePrs = ''
     def featurePr = ''
     def goLivePr = ''
 
     branches.each { featureBranch ->
         //Create release branch if not existed
-        createBranch(credentialsId, repoUrl, releaseBranch, mainBranch)
+        createBranch(env.GITHUB_CREDENTIALS_ID, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA)
 
         // Create pull request from feature branch into release branch and auto merge
-        featurePr = createPullRequestFlow(credentialsId, repoUrl, featureBranch, releaseBranch, true)
-        prMap["PR merge ${featureBranch} into ${releaseBranch}"] = featurePr
+        featurePrs = createPullRequestFlow(env.GITHUB_CREDENTIALS_ID, repoUrl, featureBranch, params.RELEASE_BRANCH, true)
+        featurePrs << "PR merge ${featureBranch} into ${params.RELEASE_BRANCH} : ${featurePr}"
 
         //Create pull request from release branch into main/master branch
-        goLivePr = createPullRequestFlow(credentialsId, repoUrl, releaseBranch, mainBranch, false)
-        prMap["PR merge ${releaseBranch} into ${mainBranch}"] = goLivePr
+        goLivePr = createPullRequestFlow(env.GITHUB_CREDENTIALS_ID, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA, false)
     }
 
-    return prMap.collect { k, v -> "${k} : ${v}" }.join("\n");
+    def result = []
+    if (goLivePr) {
+        result << "PR merge ${params.RELEASE_BRANCH} into ${env.MAIN_BRANCH_PWA} : ${goLivePr}"
+    }
+
+    result.addAll(featurePrs)
+
+    return result.join("\n")
+}
+
+def createPrForAllRemote(remotes, remotePaths) {
+    def branches = [:]
+    remotes.each { remote ->
+        branches["Create-PR-${remote}"] = {
+            node {
+                def prLines = createPullRequestGoLiveFullFlow(remotePaths[remote])
+                // persist this branch’s result so we can aggregate after parallel
+                def outFile = "prs-${remote}.txt"
+                writeFile file: outFile, text: (prLines instanceof List ? prLines.join("\n") : "${prLines}")
+                archiveArtifacts artifacts: outFile, fingerprint: true, onlyIfSuccessful: false
+            }
+        }
+    }
+
+    return branches
 }
