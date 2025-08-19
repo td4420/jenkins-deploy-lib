@@ -17,7 +17,7 @@ class NotifyUtils {
             def remote = remotes[i]
             def file = "prs-${remote}.txt"
             msgLines << "**PRs created for ${remote}**".toUpperCase()
-            if (fileExists(file)) {
+            if (script.fileExists(file)) {
                 msgLines << "${script.readFile(file).trim()}"
             }
         }
