@@ -13,7 +13,7 @@ def notifyCreatePrGoLive(remotes) {
     for (int i = 0; i < remotes.size(); i++) {
         def remote = remotes[i]
         def file = "prs-${remote}.txt"
-        msgLines << "**PRs created for ${remote} PWA**".toUpperCase()
+        msgLines << "**PRs created for ${remote}**".toUpperCase()
         if (fileExists(file)) {
             msgLines << "${readFile(file).trim()}"
         }

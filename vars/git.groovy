@@ -212,3 +212,10 @@ def createPrForAllRemote(repoUrls, remotes) {
 
     return branches
 }
+
+def prepareFullProcess(repoUrls, remotes) {
+    def pwaBranches = createPrForAllRemote(repoUrls, remotes)
+    def m2Branches = createPrForAllRemote([env.M2_REPO_URL], ['M2'])
+
+    return pwaBranches.putAll(m2Branches)
+}
