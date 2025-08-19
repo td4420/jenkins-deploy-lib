@@ -1,5 +1,5 @@
-import org.myorg.utils.GitUtils
-import org.myorg.utils.NotifyUtils
+import org.xuxi.utils.GitUtils
+import org.xuxi.utils.NotifyUtils
 
 def call() {
     def repoUrls = (env.PWA_REPO_URLS ?: "")
