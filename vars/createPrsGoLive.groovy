@@ -1,3 +1,6 @@
+import org.myorg.utils.GitUtils
+import org.myorg.utils.NotifyUtils
+
 def call() {
     def repoUrls = (env.PWA_REPO_URLS ?: "")
         .split("###")
@@ -13,11 +16,11 @@ def call() {
 
     //Run the PWA processors in parallel
     parallel pwaProcessors
-    notify.notifyCreatePrGoLive(remotes)
+    NotifyUtils.notifyCreatePrGoLive(this, remotes)
 
     //Run the M2 processor in parallel
     parallel m2Processors
-    notify.notifyCreatePrGoLive(['M2'])
+    NotifyUtils.notifyCreatePrGoLive(this, ['M2'])
 }
 
 def createPullRequestGoLiveFullFlow(repoUrl) {
@@ -31,16 +34,16 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
     def goLivePr = ''
 
     //Create release branch if not existed
-    git.createBranch(env.GITHUB_CREDENTIALS_ID, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA)
+    GitUtils.createBranch(this, env.GITHUB_CREDENTIALS_ID, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA)
 
     branches.each { featureBranch ->
         // Create pull request from feature branch into release branch and auto merge
-        featurePr = git.createPullRequestFlow(env.GITHUB_CREDENTIALS_ID, repoUrl, featureBranch, params.RELEASE_BRANCH, true)
+        featurePr = GitUtils.createPullRequestFlow(this, env.GITHUB_CREDENTIALS_ID, repoUrl, featureBranch, params.RELEASE_BRANCH, true)
         featurePrs << "- PR merge ${featureBranch} into ${params.RELEASE_BRANCH} : ${featurePr}"
     }
 
     //Create pull request from release branch into main/master branch
-    goLivePr = git.createPullRequestFlow(env.GITHUB_CREDENTIALS_ID, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA, false)
+    goLivePr = GitUtils.createPullRequestFlow(this, env.GITHUB_CREDENTIALS_ID, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA, false)
 
     def result = []
     if (goLivePr) {
