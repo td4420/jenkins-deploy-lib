@@ -1,6 +1,60 @@
 package org.xuxi.utils
 
 class GitUtils {
+    /**
+     * Pull code from git repository
+     */
+    static void pullCode(script, String credentialsId, String repoUrl, String branchName) {
+        if (!isBranchExisted(script, credentialsId, repoUrl, branchName)) {
+            script.echo "⚠️ Branch '${branchName}' does not exist in the repository '${repoUrl}'. Skipping pull."
+            return
+        }
+
+        script.withCredentials([script.usernamePassword(
+            credentialsId: credentialsId,
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_PASSWORD'
+        )]) {
+            script.sh """
+                git pull ${repoUrl} ${branchName}
+            """
+        }
+    }
+
+    /**
+     * Push code to git repository
+     */
+    static void pushCode(script, String credentialsId, String repoUrl, String branchName) {
+        script.withCredentials([script.usernamePassword(
+            credentialsId: credentialsId,
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_PASSWORD'
+        )]) {
+            script.sh """
+                git push ${repoUrl} ${branchName}
+            """
+        }
+    }
+
+    /**
+    * Clone git repository
+    */
+    static void cloneGit(script, String credentialsId, String repoUrl, String branchName, String folderName) {
+        if (!isBranchExisted(script, credentialsId, repoUrl, branchName)) {
+            error "⚠️ Branch '${branchName}' is not exists."
+            return
+        }
+
+        script.withCredentials([script.usernamePassword(
+            credentialsId: credentialsId,
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_PASSWORD'
+        )]) {
+            script.sh """
+                git clone --branch ${branchName} ${repoUrl} ${folderName}
+            """
+        }
+    }
 
     /**
      * Check if branch exists
