@@ -2,23 +2,17 @@ package org.xuxi.utils
 
 class GitUtils {
     /**
-     * Check if branch exists
-     */
-    static boolean isBranchExisted(script, String credentialsId, String repoUrl, String branchName) {
-        def branchExists = ""
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            branchExists = script.sh(
-                script: """
-                    git ls-remote --heads ${repoUrl} ${branchName} | wc -l
-                """,
-                returnStdout: true
-            ).trim()
-        }
-        return branchExists != "0"
+    * Check if branch exists using GitHub CLI
+    */
+    static boolean isBranchExisted(script, String repoOwner, String repoName, String branchName) {
+        def status = script.sh(
+            script: """
+                gh api repos/${repoOwner}/${repoName}/branches/${branchName} --silent >/dev/null 2>&1
+            """,
+            returnStatus: true
+        )
+
+        return status == 0
     }
 
     /**
