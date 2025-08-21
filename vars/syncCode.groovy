@@ -8,7 +8,9 @@ def call() {
     dir(env.WORK_DIR) {
         //Clone the source repository
         echo "Cloning branch '${params.BRANCH}' from '${env.SOURCE_REPO_URL}' into '${tempFolder}'..."
-        GitUtils.cloneGit(this, env.SOURCE_CREDENTIAL_ID, env.SOURCE_REPO_URL, params.BRANCH, tempFolder)
+        if (!GitUtils.cloneGit(this, env.SOURCE_CREDENTIAL_ID, env.SOURCE_REPO_URL, params.BRANCH, tempFolder)) {
+            error "Failed to clone source repository '${env.SOURCE_REPO_URL}'"
+        }
 
         dir(tempFolder) {
             // Pull the latest code from the destination repository

@@ -39,20 +39,25 @@ class GitUtils {
     /**
     * Clone git repository
     */
-    static void cloneGit(script, String credentialsId, String repoUrl, String branchName, String folderName) {
+    static boolean cloneGit(script, String credentialsId, String repoUrl, String branchName, String folderName) {
         if (!isBranchExisted(script, credentialsId, repoUrl, branchName)) {
-            error "⚠️ Branch '${branchName}' is not exists."
-            return
+            script.echo "⚠️ Branch '${branchName}' is not exists."
+            return false
         }
 
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            script.sh """
-                git clone --branch ${branchName} ${repoUrl} ${folderName}
-            """
+        try {
+            script.withCredentials([script.usernamePassword(
+                credentialsId: credentialsId,
+                usernameVariable: 'GIT_USER',
+                passwordVariable: 'GIT_PASSWORD'
+            )]) {
+                script.sh """
+                    git clone --branch ${branchName} ${repoUrl} ${folderName}
+                """
+            }
+        } catch (err) {
+            script.echo "❌ Failed to clone repository: ${e.getMessage()}"
+            return false
         }
     }
 
