@@ -37,7 +37,7 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
     def repoName = repoUrl
         .replaceFirst(/^https?:\/\/(?:[^@]+@)?github\.com\//, '')
         .replaceFirst(/\.git$/, '')
-    GitUtils.createBranch(this, env.GITHUB_CREDENTIALS_ID, repoName, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA)
+    GitUtils.createBranch(this, repoName, env.MAIN_BRANCH_PWA, params.RELEASE_BRANCH)
 
     branches.each { featureBranch ->
         // Create pull request from feature branch into release branch and auto merge
