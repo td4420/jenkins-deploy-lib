@@ -2,85 +2,6 @@ package org.xuxi.utils
 
 class GitUtils {
     /**
-     * Pull code from git repository
-     */
-    static void pullCode(script, String credentialsId, String repoUrl, String branchName) {
-        if (!isBranchExisted(script, credentialsId, repoUrl, branchName)) {
-            script.echo "⚠️ Branch '${branchName}' does not exist in the repository '${repoUrl}'. Skipping pull."
-            return
-        }
-
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
-            def authedRepoUrl = repoUrl.replaceFirst(
-                /^https:\/\//,
-                "https://${GIT_CREDENTIALS}@"
-            )
-
-            script.sh '''
-                git pull ${authedRepoUrl} ${branchName}
-            '''
-        }
-    }
-
-    /**
-     * Push code to git repository
-     */
-    static void pushCode(script, String credentialsId, String repoUrl, String branchName) {
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
-            def authedRepoUrl = repoUrl.replaceFirst(
-                /^https:\/\//,
-                "https://${GIT_CREDENTIALS}@"
-            )
-
-            script.sh '''
-                git push ${authedRepoUrl} ${branchName}
-            '''
-        }
-    }
-
-    /**
-    * Clone git repository
-    */
-    static boolean cloneGit(script, String credentialsId, String repoUrl, String branchName, String folderName) {
-        if (!isBranchExisted(script, credentialsId, repoUrl, branchName)) {
-            script.echo "⚠️ Branch '${branchName}' is not exists."
-            return false
-        }
-
-        try {
-            script.withCredentials([script.usernamePassword(
-                credentialsId: credentialsId,
-                usernameVariable: 'GIT_USER',
-                passwordVariable: 'GIT_PASSWORD'
-            )]) {
-                def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
-                def authedRepoUrl = repoUrl.replaceFirst(
-                    /^https:\/\//,
-                    "https://${GIT_CREDENTIALS}@"
-                )
-
-                script.sh '''
-                    git clone --branch ${branchName} ${authedRepoUrl} ${folderName}
-                '''
-            }
-            return true
-        } catch (err) {
-            script.echo "❌ Failed to clone repository: ${err.getMessage()}"
-            return false
-        }
-    }
-
-    /**
      * Check if branch exists
      */
     static boolean isBranchExisted(script, String credentialsId, String repoUrl, String branchName) {
@@ -90,16 +11,10 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-            def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
-            def authedRepoUrl = repoUrl.replaceFirst(
-                /^https:\/\//,
-                "https://${GIT_CREDENTIALS}@"
-            )
-
             branchExists = script.sh(
-                script: '''
-                    git ls-remote --heads ${authedRepoUrl} ${branchName} | wc -l
-                ''',
+                script: """
+                    git ls-remote --heads ${repoUrl} ${branchName} | wc -l
+                """,
                 returnStdout: true
             ).trim()
         }
