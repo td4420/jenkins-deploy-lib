@@ -22,6 +22,7 @@ class GitUtils {
             )
 
             script.sh """
+                set +x
                 git pull ${authedRepoUrl} ${branchName}
             """
         }
@@ -43,6 +44,7 @@ class GitUtils {
             )
 
             script.sh """
+                set +x
                 git push ${authedRepoUrl} ${branchName}
             """
         }
@@ -63,13 +65,14 @@ class GitUtils {
                 usernameVariable: 'GIT_USER',
                 passwordVariable: 'GIT_PASSWORD'
             )]) {
-                def GIT_CREDENTIALS = "${GIT_USER}:${GIT_PASSWORD}"
+                def GIT_CREDENTIALS = "${script.env.GIT_USER}:${script.env.GIT_PASSWORD}"
                 def authedRepoUrl = repoUrl.replaceFirst(
                     /^https:\/\//,
                     "https://${GIT_CREDENTIALS}@"
                 )
 
                 script.sh """
+                    set +x
                     git clone --branch ${branchName} ${authedRepoUrl} ${folderName}
                 """
             }
@@ -96,7 +99,10 @@ class GitUtils {
             )
 
             branchExists = script.sh(
-                script: "git ls-remote --heads ${authedRepoUrl} ${branchName} | wc -l",
+                script: """
+                    set +x
+                    git ls-remote --heads ${authedRepoUrl} ${branchName} | wc -l
+                """,
                 returnStdout: true
             ).trim()
         }
