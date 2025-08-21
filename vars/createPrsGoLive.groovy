@@ -19,8 +19,8 @@ def call() {
     NotifyUtils.notifyCreatePrGoLive(this, remotes)
 
     //Run the M2 processor in parallel
-    parallel m2Processors
-    NotifyUtils.notifyCreatePrGoLive(this, ['M2'])
+    // parallel m2Processors
+    // NotifyUtils.notifyCreatePrGoLive(this, ['M2'])
 }
 
 def createPullRequestGoLiveFullFlow(repoUrl) {
