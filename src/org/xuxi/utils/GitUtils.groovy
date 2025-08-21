@@ -15,10 +15,10 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-
+            def GIT_CREDENTIALS = "${GIT_USER}:${GIT_PASSWORD}"
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                "https://${GIT_USER}:${GIT_PASSWORD}@"
+                "https://${GIT_CREDENTIALS}@"
             )
 
             script.sh """
@@ -36,9 +36,10 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
+            def GIT_CREDENTIALS = "${GIT_USER}:${GIT_PASSWORD}"
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                "https://${GIT_USER}:${GIT_PASSWORD}@"
+                "https://${GIT_CREDENTIALS}@"
             )
 
             script.sh """
@@ -62,10 +63,12 @@ class GitUtils {
                 usernameVariable: 'GIT_USER',
                 passwordVariable: 'GIT_PASSWORD'
             )]) {
+                def GIT_CREDENTIALS = "${GIT_USER}:${GIT_PASSWORD}"
                 def authedRepoUrl = repoUrl.replaceFirst(
                     /^https:\/\//,
-                    "https://${GIT_USER}:${GIT_PASSWORD}@"
+                    "https://${GIT_CREDENTIALS}@"
                 )
+
                 script.sh """
                     git clone --branch ${branchName} ${authedRepoUrl} ${folderName}
                 """
@@ -86,9 +89,10 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
+            def GIT_CREDENTIALS = "${GIT_USER}:${GIT_PASSWORD}"
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                "https://${GIT_USER}:${GIT_PASSWORD}@"
+                "https://${GIT_CREDENTIALS}@"
             )
 
             branchExists = script.sh(
