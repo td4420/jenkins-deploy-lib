@@ -15,16 +15,15 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-            def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
+            def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                "https://${GIT_CREDENTIALS}@"
+                'https://${GIT_CREDENTIALS}@'
             )
 
-            script.sh """
-                set +x
+            script.sh '''
                 git pull ${authedRepoUrl} ${branchName}
-            """
+            '''
         }
     }
 
@@ -37,16 +36,15 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-            def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
+            def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                "https://${GIT_CREDENTIALS}@"
+                'https://${GIT_CREDENTIALS}@'
             )
 
-            script.sh """
-                set +x
+            script.sh '''
                 git push ${authedRepoUrl} ${branchName}
-            """
+            '''
         }
     }
 
@@ -65,17 +63,17 @@ class GitUtils {
                 usernameVariable: 'GIT_USER',
                 passwordVariable: 'GIT_PASSWORD'
             )]) {
-                def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
+                def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
                 def authedRepoUrl = repoUrl.replaceFirst(
                     /^https:\/\//,
-                    "https://${GIT_CREDENTIALS}@"
+                    'https://${GIT_CREDENTIALS}@'
                 )
 
-                script.sh """
-                    set +x
+                script.sh '''
                     git clone --branch ${branchName} ${authedRepoUrl} ${folderName}
-                """
+                '''
             }
+            return true
         } catch (err) {
             script.echo "❌ Failed to clone repository: ${err.getMessage()}"
             return false
@@ -92,17 +90,16 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-            def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
+            def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                "https://${GIT_CREDENTIALS}@"
+                'https://${GIT_CREDENTIALS}@'
             )
 
             branchExists = script.sh(
-                script: """
-                    set +x
+                script: '''
                     git ls-remote --heads ${authedRepoUrl} ${branchName} | wc -l
-                """,
+                ''',
                 returnStdout: true
             ).trim()
         }
