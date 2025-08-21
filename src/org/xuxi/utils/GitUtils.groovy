@@ -4,10 +4,10 @@ class GitUtils {
     /**
     * Check if branch exists using GitHub CLI
     */
-    static boolean isBranchExisted(script, String repoOwner, String repoName, String branchName) {
+    static boolean isBranchExisted(script, String repoName, String branchName) {
         def status = script.sh(
             script: """
-                gh api repos/${repoOwner}/${repoName}/branches/${branchName} --silent >/dev/null 2>&1
+                gh api repos/${repoName}/branches/${branchName} --silent >/dev/null 2>&1
             """,
             returnStatus: true
         )
@@ -115,7 +115,7 @@ class GitUtils {
         // Create the new branch ref pointing to that commit
         def status = script.sh(
             script: """
-                gh api repos/${repoOwner}/${repoName}/git/refs \\
+                gh api repos/${repoName}/git/refs \\
                 -f ref=refs/heads/${newBranch} \\
                 -f sha=${sha}
             """,
@@ -133,21 +133,21 @@ class GitUtils {
      * Full flow create new pull request github
      */
     static String createPullRequestFlow(script, String credentialsId, String repoUrl, String sourceBranch, String destinationBranch, boolean autoMerge) {
+        def repoName = repoUrl
+            .replaceFirst(/^https?:\/\/(?:[^@]+@)?github\.com\//, '')
+            .replaceFirst(/\.git$/, '')
+
         script.echo "Check if sourceBranch branch exists"
-        if (!isBranchExisted(script, credentialsId, repoUrl, sourceBranch)) {
+        if (!isBranchExisted(script, repoName, sourceBranch)) {
             return "Branch '${sourceBranch}' does not exist — skipping PR creation."
         }
 
         script.echo "Check if destination branch exists"
-        if (!isBranchExisted(script, credentialsId, repoUrl, destinationBranch)) {
+        if (!isBranchExisted(script, repoName, destinationBranch)) {
             return "Branch '${destinationBranch}' does not exist — skipping PR creation."
         }
 
         script.echo "Branch '${sourceBranch}' and '${destinationBranch}' exists — creating PR."
-
-        def repoName = repoUrl
-            .replaceFirst(/^https?:\/\/(?:[^@]+@)?github\.com\//, '')
-            .replaceFirst(/\.git$/, '')
 
         // ✅ Check if branches have differences
         if (!haveDiffBranch(script, credentialsId, repoName, sourceBranch, destinationBranch)) {
