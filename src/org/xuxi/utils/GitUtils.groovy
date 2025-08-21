@@ -18,7 +18,7 @@ class GitUtils {
             def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                'https://${GIT_CREDENTIALS}@'
+                "https://${GIT_CREDENTIALS}@"
             )
 
             script.sh '''
@@ -39,7 +39,7 @@ class GitUtils {
             def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                'https://${GIT_CREDENTIALS}@'
+                "https://${GIT_CREDENTIALS}@"
             )
 
             script.sh '''
@@ -66,7 +66,7 @@ class GitUtils {
                 def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
                 def authedRepoUrl = repoUrl.replaceFirst(
                     /^https:\/\//,
-                    'https://${GIT_CREDENTIALS}@'
+                    "https://${GIT_CREDENTIALS}@"
                 )
 
                 script.sh '''
@@ -93,7 +93,7 @@ class GitUtils {
             def GIT_CREDENTIALS = '$script.env.GIT_USER:$script.env.GIT_PASSWORD'
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
-                'https://${GIT_CREDENTIALS}@'
+                "https://${GIT_CREDENTIALS}@"
             )
 
             branchExists = script.sh(
