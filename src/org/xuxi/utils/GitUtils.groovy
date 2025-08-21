@@ -15,8 +15,14 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
+
+            def authedRepoUrl = repoUrl.replaceFirst(
+                /^https:\/\//,
+                "https://${GIT_USER}:${GIT_PASSWORD}@"
+            )
+
             script.sh """
-                git pull ${repoUrl} ${branchName}
+                git pull ${authedRepoUrl} ${branchName}
             """
         }
     }
@@ -30,8 +36,13 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
+            def authedRepoUrl = repoUrl.replaceFirst(
+                /^https:\/\//,
+                "https://${GIT_USER}:${GIT_PASSWORD}@"
+            )
+
             script.sh """
-                git push ${repoUrl} ${branchName}
+                git push ${authedRepoUrl} ${branchName}
             """
         }
     }
@@ -51,8 +62,12 @@ class GitUtils {
                 usernameVariable: 'GIT_USER',
                 passwordVariable: 'GIT_PASSWORD'
             )]) {
+                def authedRepoUrl = repoUrl.replaceFirst(
+                    /^https:\/\//,
+                    "https://${GIT_USER}:${GIT_PASSWORD}@"
+                )
                 script.sh """
-                    git clone --branch ${branchName} ${repoUrl} ${folderName}
+                    git clone --branch ${branchName} ${authedRepoUrl} ${folderName}
                 """
             }
         } catch (err) {
@@ -71,8 +86,13 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
+            def authedRepoUrl = repoUrl.replaceFirst(
+                /^https:\/\//,
+                "https://${GIT_USER}:${GIT_PASSWORD}@"
+            )
+
             branchExists = script.sh(
-                script: "git ls-remote --heads ${repoUrl} ${branchName} | wc -l",
+                script: "git ls-remote --heads ${authedRepoUrl} ${branchName} | wc -l",
                 returnStdout: true
             ).trim()
         }
