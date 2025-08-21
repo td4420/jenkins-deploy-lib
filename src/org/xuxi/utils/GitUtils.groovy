@@ -15,7 +15,7 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-            def GIT_CREDENTIALS = "${script.env.GIT_USER}:${script.env.GIT_PASSWORD}"
+            def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
                 "https://${GIT_CREDENTIALS}@"
@@ -37,7 +37,7 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-            def GIT_CREDENTIALS = "${script.env.GIT_USER}:${script.env.GIT_PASSWORD}"
+            def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
                 "https://${GIT_CREDENTIALS}@"
@@ -65,7 +65,7 @@ class GitUtils {
                 usernameVariable: 'GIT_USER',
                 passwordVariable: 'GIT_PASSWORD'
             )]) {
-                def GIT_CREDENTIALS = "${script.env.GIT_USER}:${script.env.GIT_PASSWORD}"
+                def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
                 def authedRepoUrl = repoUrl.replaceFirst(
                     /^https:\/\//,
                     "https://${GIT_CREDENTIALS}@"
@@ -92,7 +92,7 @@ class GitUtils {
             usernameVariable: 'GIT_USER',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
-            def GIT_CREDENTIALS = "${script.env.GIT_USER}:${script.env.GIT_PASSWORD}"
+            def GIT_CREDENTIALS = "$script.env.GIT_USER:$script.env.GIT_PASSWORD"
             def authedRepoUrl = repoUrl.replaceFirst(
                 /^https:\/\//,
                 "https://${GIT_CREDENTIALS}@"
