@@ -101,36 +101,32 @@ class GitUtils {
     }
 
     /**
-     * Create new git branch
-     */
-    static void createBranch(script, String credentialsId, String repoUrl, String branchName, String mainBranch) {
-        if (isBranchExisted(script, credentialsId, repoUrl, branchName)) {
-            script.echo "⚠️ Branch '${branchName}' already exists. Skipping."
-            return
+    * Create new branch using GitHub CLI instead of raw git + credentials
+    */
+    static void createBranch(script, String repoName, String mainBranch, String newBranch) {
+        // Get the latest commit SHA of the main branch
+        def sha = script.sh(
+            script: """
+                gh api repos/${repoName}/git/ref/heads/${mainBranch} --jq '.object.sha'
+            """,
+            returnStdout: true
+        ).trim()
+
+        // Create the new branch ref pointing to that commit
+        def status = script.sh(
+            script: """
+                gh api repos/${repoOwner}/${repoName}/git/refs \\
+                -f ref=refs/heads/${newBranch} \\
+                -f sha=${sha}
+            """,
+            returnStatus: true
+        )
+
+        if (status == 0) {
+            script.echo "✅ Created branch '${newBranch}' from '${mainBranch}'"
+        } else {
+            script.echo "⚠️ Failed to create branch '${newBranch}' (maybe it already exists)"
         }
-
-        script.deleteDir()
-
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASS'
-        )]) {
-            // Clone main branch and create new branch
-            script.sh """
-                git clone --branch ${mainBranch} ${repoUrl} repo
-            """
-
-            script.dir('repo') {
-                script.sh """
-                    git checkout -b ${branchName}
-                    git push ${repoUrl} ${branchName}
-                """
-            }
-        }
-
-        script.deleteDir()
-        script.echo "✅ Created branch: ${branchName} from ${mainBranch}"
     }
 
     /**
