@@ -56,7 +56,7 @@ class GitUtils {
                 """
             }
         } catch (err) {
-            script.echo "❌ Failed to clone repository: ${e.getMessage()}"
+            script.echo "❌ Failed to clone repository: ${err.getMessage()}"
             return false
         }
     }
