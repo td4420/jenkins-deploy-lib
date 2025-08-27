@@ -6,21 +6,20 @@ def call() {
         .split("###")
         .findAll { it }
 
+    repoUrls << env.M2_REPO_URL
+
     def remotes = (params.REMOTES ?: '')
         .split(',')
         .collect { it.trim() }
         .findAll { it }
 
-    def pwaProcessors = generateProcessor(repoUrls, remotes)
-    def m2Processors = generateProcessor([env.M2_REPO_URL], ['M2'])
+    remotes << 'M2'
 
-    //Run the PWA processors in parallel
-    parallel pwaProcessors
+    def processors = generateProcessor(repoUrls, remotes)
+
+    //Run processors in parallel
+    parallel processors
     NotifyUtils.notifyCreatePrGoLive(this, remotes)
-
-    //Run the M2 processor in parallel
-    // parallel m2Processors
-    // NotifyUtils.notifyCreatePrGoLive(this, ['M2'])
 }
 
 def createPullRequestGoLiveFullFlow(repoUrl) {
@@ -41,12 +40,12 @@ def createPullRequestGoLiveFullFlow(repoUrl) {
 
     branches.each { featureBranch ->
         // Create pull request from feature branch into release branch and auto merge
-        featurePr = GitUtils.createPullRequestFlow(this, env.GITHUB_CREDENTIALS_ID, repoUrl, featureBranch, params.RELEASE_BRANCH, true)
+        featurePr = GitUtils.createPullRequestFlow(this, repoUrl, featureBranch, params.RELEASE_BRANCH, true)
         featurePrs << "- PR merge ${featureBranch} into ${params.RELEASE_BRANCH} : ${featurePr}"
     }
 
     //Create pull request from release branch into main/master branch
-    goLivePr = GitUtils.createPullRequestFlow(this, env.GITHUB_CREDENTIALS_ID, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA, false)
+    goLivePr = GitUtils.createPullRequestFlow(this, repoUrl, params.RELEASE_BRANCH, env.MAIN_BRANCH_PWA, false)
 
     def result = []
     if (goLivePr) {

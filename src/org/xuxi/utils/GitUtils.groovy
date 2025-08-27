@@ -2,7 +2,7 @@ package org.xuxi.utils
 
 class GitUtils {
     /**
-    * Check if branch exists using GitHub CLI
+    * Check if branch exists using GitHub CLI (scoped GH_TOKEN)
     */
     static boolean isBranchExisted(script, String repoName, String branchName) {
         def status = script.sh(
@@ -15,89 +15,66 @@ class GitUtils {
         return status == 0
     }
 
+
     /**
      * Check if branches have differences
      */
-    static boolean haveDiffBranch(script, String credentialsId, String repoName, String sourceBranch, String destinationBranch) {
-        def commitDiff = ""
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            commitDiff = script.sh(
-                script: """
-                    gh api repos/${repoName}/compare/${destinationBranch}...${sourceBranch} \
-                        --jq '.total_commits'
-                """,
-                returnStdout: true
-            ).trim()
-        }
+    static boolean haveDiffBranch(script, String repoName, String sourceBranch, String destinationBranch) {
+        def commitDiff = script.sh(
+            script: """
+                gh api repos/${repoName}/compare/${destinationBranch}...${sourceBranch} \
+                    --jq '.total_commits'
+            """,
+            returnStdout: true
+        ).trim()
+
         return commitDiff != "0"
     }
 
     /**
      * Check if pull request exists, return PR number
      */
-    static String getPullRequest(script, String credentialsId, String repoName, String sourceBranch, String destinationBranch) {
-        def prNumber = ""
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            prNumber = script.sh(
-                script: """
-                    gh pr list \
-                        --repo ${repoName} \
-                        --head ${sourceBranch} \
-                        --base ${destinationBranch} \
-                        --state open \
-                        --json number \
-                        --jq '.[0].number'
-                """,
-                returnStdout: true
-            ).trim()
-        }
+    static String getPullRequest(script, String repoName, String sourceBranch, String destinationBranch) {
+        def prNumber = script.sh(
+            script: """
+                gh pr list \
+                    --repo ${repoName} \
+                    --head ${sourceBranch} \
+                    --base ${destinationBranch} \
+                    --state open \
+                    --json number \
+                    --jq '.[0].number'
+            """,
+            returnStdout: true
+        ).trim()
+
         return prNumber
     }
 
     /**
      * Create new pull request
      */
-    static String createPullRequest(script, String credentialsId, String repoName, String sourceBranch, String destinationBranch) {
-        def prNumber = ""
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            prNumber = script.sh(
-                script: """
-                    gh pr create \
-                        --repo ${repoName} \
-                        --head ${sourceBranch} \
-                        --base ${destinationBranch} \
-                        --title "Merge ${sourceBranch} into ${destinationBranch}" \
-                        --body "Merge ${sourceBranch} into ${destinationBranch}"
-                """,
-                returnStdout: true
-            ).trim()
-        }
+    static String createPullRequest(script, String repoName, String sourceBranch, String destinationBranch) {
+        def prNumber = script.sh(
+            script: """
+                gh pr create \
+                    --repo ${repoName} \
+                    --head ${sourceBranch} \
+                    --base ${destinationBranch} \
+                    --title "Merge ${sourceBranch} into ${destinationBranch}" \
+                    --body "Merge ${sourceBranch} into ${destinationBranch}"
+            """,
+            returnStdout: true
+        ).trim()
+
         return prNumber
     }
 
     /**
      * Merge pull request
      */
-    static void mergePullRequest(script, String credentialsId, String repoName, String prNumber) {
-        script.withCredentials([script.usernamePassword(
-            credentialsId: credentialsId,
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASSWORD'
-        )]) {
-            script.sh "gh pr merge ${prNumber} --repo ${repoName} --merge --admin"
-        }
+    static void mergePullRequest(script, String repoName, String prNumber) {
+        script.sh "gh pr merge ${prNumber} --repo ${repoName} --merge --admin"
     }
 
     /**
@@ -132,7 +109,7 @@ class GitUtils {
     /**
      * Full flow create new pull request github
      */
-    static String createPullRequestFlow(script, String credentialsId, String repoUrl, String sourceBranch, String destinationBranch, boolean autoMerge) {
+    static String createPullRequestFlow(script, String repoUrl, String sourceBranch, String destinationBranch, boolean autoMerge) {
         def repoName = repoUrl
             .replaceFirst(/^https?:\/\/(?:[^@]+@)?github\.com\//, '')
             .replaceFirst(/\.git$/, '')
@@ -150,15 +127,15 @@ class GitUtils {
         script.echo "Branch '${sourceBranch}' and '${destinationBranch}' exists — creating PR."
 
         // ✅ Check if branches have differences
-        if (!haveDiffBranch(script, credentialsId, repoName, sourceBranch, destinationBranch)) {
+        if (!haveDiffBranch(script, repoName, sourceBranch, destinationBranch)) {
             return "No differences between ${sourceBranch} and ${destinationBranch} — skipping PR creation."
         }
 
-        def prNumber = getPullRequest(script, credentialsId, repoName, sourceBranch, destinationBranch)
+        def prNumber = getPullRequest(script, repoName, sourceBranch, destinationBranch)
         def prUrl = ""
         if (!prNumber) {
             script.echo "No existing PR found — creating new PR."
-            prNumber = createPullRequest(script, credentialsId, repoName, sourceBranch, destinationBranch)
+            prNumber = createPullRequest(script, repoName, sourceBranch, destinationBranch)
             prUrl = prNumber
         } else {
             script.echo "A PR already exists (#${prNumber})."
@@ -169,7 +146,7 @@ class GitUtils {
         if (autoMerge) {
             script.echo "Merging PR #${prNumber}..."
             try {
-                mergePullRequest(script, credentialsId, repoName, prNumber)
+                mergePullRequest(script, repoName, prNumber)
             } catch (err) {
                 prUrl = "⚠️ Auto-merge failed for PR #${prUrl}: ${err.getMessage()}"
             }
