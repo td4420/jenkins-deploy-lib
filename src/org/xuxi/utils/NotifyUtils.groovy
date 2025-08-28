@@ -1,8 +1,25 @@
 package org.xuxi.utils
 
 class NotifyUtils {
-    static void sendNotification(script, String message) {
-        script.echo "📢 Sending notification:\n ${message}"
+    static void sendNotification(script, String message, int status, String link = null) {
+        def payload = [
+            project: script.env.PROJECT_NAME,
+            message: message,
+            status : 0
+        ]
+
+        if (link) {
+            payload.link = link
+        }
+
+        def json = JsonOutput.toJson(payload)
+
+        script.sh """
+            curl --header "Content-Type: application/json" \
+                --request POST \
+                --data '${json}' \
+                https://cicd.bssdev.cloud/post
+        """
     }
 
     static void notifyCreatePrGoLive(script, List<String> remotes) {
@@ -22,6 +39,6 @@ class NotifyUtils {
             }
         }
 
-        sendNotification(script, msgLines.join("\n"))
+        sendNotification(script, msgLines.join("\n"), 0, null)
     }
 }

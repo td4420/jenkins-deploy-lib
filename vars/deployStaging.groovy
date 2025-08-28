@@ -1,9 +1,27 @@
 import org.xuxi.utils.NotifyUtils
 
 def call() {
-    def branches = generateProcessor()
+    stage('Start Process') {
+        steps {
+            script {
+                def jobName   = env.JOB_NAME
+                def buildNum  = env.BUILD_NUMBER
+                def jenkinsUrl = env.JENKINS_URL
+                
+                env.BLUE_LINK = "${jenkinsUrl}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
+                NotifyUtils.sendNotification(this, "Deployment started", 999, env.BLUE_LINK)
+            }
+        }
+    }
 
-    parallel branches
+    stage('Deploy staging') {
+        steps {
+            script {
+                def branches = generateProcessor()
+                parallel branches
+            }
+        }
+    }
 }
 
 def generateProcessor() {
@@ -26,20 +44,16 @@ def generateProcessor() {
                     propagate: true
                 )
 
-                echo "Result: ${downstream.getResult()}" 
                 def jobName   = downstream.getProjectName()
                 def buildNum  = downstream.number
                 def jenkinsUrl = env.JENKINS_URL
-
                 def blueUrl = "${jenkinsUrl}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
 
-                // get log lines (List<String>)
-                def logLines = downstream.rawBuild.getLog(1000)  // last 1000 lines
-                logLines.each { line ->
-                    echo line
+                if (downstream.getResult() != 'SUCCESS') {
+                    NotifyUtils.sendNotification(this, "⚠️ Deploy ${remote} failed", 1, blueUrl)
+                } else {
+                    NotifyUtils.sendNotification(this, "✅ Deploy ${remote} succeeded", 0, blueUrl)
                 }
-
-                NotifyUtils.sendNotification(this, "🌐 Blue Ocean link: ${blueUrl}")
             }
         }
     }
