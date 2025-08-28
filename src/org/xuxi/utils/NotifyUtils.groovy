@@ -15,7 +15,7 @@ class NotifyUtils {
 
         def json = JsonOutput.toJson(payload)
 
-        echo json
+        script.echo json
 
         // script.sh """
         //     curl --header "Content-Type: application/json" \
