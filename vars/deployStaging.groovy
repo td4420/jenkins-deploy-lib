@@ -20,7 +20,7 @@ def generateProcessor() {
                         string(name: 'REMOTE', value: remote),
                         string(name: 'BRANCH', value: params.BRANCH),
                     ],
-                    wait: true,
+                    wait: false,
                     propagate: true
                 )
                     
