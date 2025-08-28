@@ -1,4 +1,5 @@
 package org.xuxi.utils
+import groovy.json.JsonOutput
 
 class NotifyUtils {
     static void sendNotification(script, String message, int status, String link = null) {
