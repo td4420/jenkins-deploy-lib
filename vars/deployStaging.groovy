@@ -33,7 +33,7 @@ def generateProcessor() {
                 if (downstream.getResult() != 'SUCCESS') {
                     NotifyUtils.sendNotification(this, "Deploy ${remote} failed", 1, blueUrl)
                 } else {
-                    NotifyUtils.sendNotification(this, "Deploy ${remote} succeeded", 0, blueUrl)
+                    NotifyUtils.sendNotification(this, "Deploy ${remote} done", 0, blueUrl)
                 }
             }
         }

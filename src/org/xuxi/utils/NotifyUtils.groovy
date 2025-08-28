@@ -6,7 +6,7 @@ class NotifyUtils {
         def payload = [
             project: script.env.PROJECT_NAME,
             message: message,
-            status : 0
+            status : status
         ]
 
         if (link) {
