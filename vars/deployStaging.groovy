@@ -1,27 +1,8 @@
 import org.xuxi.utils.NotifyUtils
 
 def call() {
-    stage('Start Process') {
-        steps {
-            script {
-                def jobName   = env.JOB_NAME
-                def buildNum  = env.BUILD_NUMBER
-                def jenkinsUrl = env.JENKINS_URL
-                
-                env.BLUE_LINK = "${jenkinsUrl}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
-                NotifyUtils.sendNotification(this, "Deployment started", 999, env.BLUE_LINK)
-            }
-        }
-    }
-
-    stage('Deploy staging') {
-        steps {
-            script {
-                def branches = generateProcessor()
-                parallel branches
-            }
-        }
-    }
+    def branches = generateProcessor()
+    parallel branches
 }
 
 def generateProcessor() {
