@@ -2,18 +2,14 @@ import org.xuxi.utils.GitUtils
 import org.xuxi.utils.NotifyUtils
 
 def call() {
-    def repoUrls = (env.PWA_REPO_URLS ?: "")
+    def repoUrls = (env.REPO_URLS ?: "")
         .split("###")
         .findAll { it }
-
-    repoUrls << env.M2_REPO_URL
 
     def remotes = (params.REMOTES ?: '')
         .split(',')
         .collect { it.trim() }
         .findAll { it }
-
-    remotes << 'M2'
 
     def processors = generateProcessor(repoUrls, remotes)
 
