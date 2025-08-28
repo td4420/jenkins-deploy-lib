@@ -1,25 +1,12 @@
+import org.xuxi.utils.NotifyUtils
+
 def call() {
-    def downstreamJobs = [:]
-    def branches = generateProcessor(downstreamJobs)
+    def branches = generateProcessor()
 
     parallel branches
-
-    stage('Collect Downstream Links') {
-        script {
-            downstreamJobs.each { remote, future ->
-                // Wait until downstream is finished, then build link
-                def run = future.get()
-                def jobName = run.parent.fullName
-                def buildNum = run.number
-                def blueUrl = "${env.JENKINS_URL}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
-
-                echo "🌐 ${remote} → ${blueUrl}"
-            }
-        }
-    }
 }
 
-def generateProcessor(downstreamJobs) {
+def generateProcessor() {
     def remotes = params.REMOTES
         .split(',')
         .collect { it.trim() }
@@ -35,11 +22,17 @@ def generateProcessor(downstreamJobs) {
                         string(name: 'REMOTE', value: remote),
                         string(name: 'BRANCH', value: params.BRANCH),
                     ],
-                    wait: false,
+                    wait: true,
                     propagate: true
                 )
 
-                downstreamJobs[remote] = downstream
+                def jobName   = downstream.getProjectName()
+                def buildNum  = downstream.number
+                def jenkinsUrl = env.JENKINS_URL
+
+                def blueUrl = "${jenkinsUrl}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
+
+                NotifyUtils.sendNotification(this, "🌐 Blue Ocean link: ${blueUrl}")
             }
         }
     }
