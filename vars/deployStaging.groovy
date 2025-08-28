@@ -31,9 +31,9 @@ def generateProcessor() {
                 def blueUrl = "${jenkinsUrl}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
 
                 if (downstream.getResult() != 'SUCCESS') {
-                    NotifyUtils.sendNotification(this, "⚠️ Deploy ${remote} failed", 1, blueUrl)
+                    NotifyUtils.sendNotification(this, "Deploy ${remote} failed", 1, blueUrl)
                 } else {
-                    NotifyUtils.sendNotification(this, "✅ Deploy ${remote} succeeded", 0, blueUrl)
+                    NotifyUtils.sendNotification(this, "Deploy ${remote} succeeded", 0, blueUrl)
                 }
             }
         }
