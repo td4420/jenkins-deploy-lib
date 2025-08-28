@@ -14,12 +14,14 @@ class NotifyUtils {
 
         def json = JsonOutput.toJson(payload)
 
-        script.sh """
-            curl --header "Content-Type: application/json" \
-                --request POST \
-                --data '${json}' \
-                https://cicd.bssdev.cloud/post
-        """
+        echo json
+
+        // script.sh """
+        //     curl --header "Content-Type: application/json" \
+        //         --request POST \
+        //         --data '${json}' \
+        //         https://cicd.bssdev.cloud/post
+        // """
     }
 
     static void notifyCreatePrGoLive(script, List<String> remotes) {
