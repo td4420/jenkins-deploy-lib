@@ -1,10 +1,25 @@
 def call() {
-    def branches = generateProcessor()
+    def downstreamJobs = [:]
+    def branches = generateProcessor(downstreamJobs)
 
     parallel branches
+
+    stage('Collect Downstream Links') {
+        script {
+            downstreamJobs.each { remote, future ->
+                // Wait until downstream is finished, then build link
+                def run = future.get()
+                def jobName = run.parent.fullName
+                def buildNum = run.number
+                def blueUrl = "${env.JENKINS_URL}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
+
+                echo "🌐 ${remote} → ${blueUrl}"
+            }
+        }
+    }
 }
 
-def generateProcessor() {
+def generateProcessor(downstreamJobs) {
     def remotes = params.REMOTES
         .split(',')
         .collect { it.trim() }
@@ -23,14 +38,8 @@ def generateProcessor() {
                     wait: false,
                     propagate: true
                 )
-                    
-                def jobName   = downstream.getProjectName()
-                def buildNum  = downstream.number
-                def jenkinsUrl = env.JENKINS_URL
 
-                def blueUrl = "${jenkinsUrl}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
-
-                echo "🌐 Blue Ocean link: ${blueUrl}"
+                downstreamJobs[remote] = downstream
             }
         }
     }
