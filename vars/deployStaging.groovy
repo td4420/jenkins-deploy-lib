@@ -22,7 +22,7 @@ def generateProcessor() {
                         string(name: 'BRANCH', value: params.BRANCH),
                     ],
                     wait: true,
-                    propagate: true
+                    propagate: false
                 )
 
                 def jobName   = downstream.getProjectName()
