@@ -11,9 +11,13 @@ def generateProcessor() {
         .collect { it.trim() }
         .findAll { it }
 
-    def siteUrls = (env.SITE_URL ?: "")
-        .split("###")
-        .findAll { it }
+    def REMOTE_URL = [
+        "abenson"   : "https://pwa.abenson-shop.online/",
+        "automatic" : "https://pwa-automatic.abenson-shop.online/",
+        "electro": "https://pwa-electro.abenson-shop.online/",
+        "abensonhome": "http://pwa-abensonhome.abenson-shop.online/",
+        "abz": "https://pwa-abz.abenson-shop.online/"
+    ]
 
     def branches = [:]
     remotes.eachWithIndex { remote, index ->
@@ -35,9 +39,9 @@ def generateProcessor() {
                 def blueUrl = "${jenkinsUrl}blue/organizations/jenkins/${jobName}/detail/${jobName}/${buildNum}/pipeline"
 
                 if (downstream.getResult() != 'SUCCESS') {
-                    NotifyUtils.sendNotification(this, "Deploy [${remote}](${siteUrls[index]}) failed", 1, blueUrl)
+                    NotifyUtils.sendNotification(this, "Deploy [${remote}](${REMOTE_URL[index]}) failed", 1, blueUrl)
                 } else {
-                    NotifyUtils.sendNotification(this, "Deploy [${remote}](${siteUrls[index]}) done", 0, blueUrl)
+                    NotifyUtils.sendNotification(this, "Deploy [${remote}](${REMOTE_URL[index]}) done", 0, blueUrl)
                 }
             }
         }
