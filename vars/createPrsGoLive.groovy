@@ -58,7 +58,7 @@ def generateProcessor(repoUrls, remotes) {
     repoUrls.eachWithIndex { repoUrl, index ->
         branches["Create-PR-${remotes[index]}"] = {
             node {
-                def mainBranch = (remote == 'm2') ? env.MAIN_BRANCH_M2 : env.MAIN_BRANCH_PWA
+                def mainBranch = (remotes[index] == 'm2') ? env.MAIN_BRANCH_M2 : env.MAIN_BRANCH_PWA
                 def prLines = createPullRequestGoLiveFullFlow(repoUrl, mainBranch)
                 // persist this branch’s result so we can aggregate after parallel
                 def outFile = "prs-${remotes[index]}.txt"
