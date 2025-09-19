@@ -15,7 +15,7 @@ def call() {
 
     //Run processors in parallel
     parallel processors
-    NotifyUtils.notifyCreatePrGoLive(this, remotes)
+    NotifyUtils.notifyCreatePrGoLive(this, remotes, params.TAG_NAMES)
 }
 
 def createPullRequestGoLiveFullFlow(repoUrl, mainBranch) {

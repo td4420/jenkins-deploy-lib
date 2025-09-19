@@ -23,14 +23,14 @@ class NotifyUtils {
         """
     }
 
-    static void notifyCreatePrGoLive(script, List<String> remotes) {
+    static void notifyCreatePrGoLive(script, List<String> remotes, String tagNames) {
         // pull all stashed files into THIS workspace
         for (int i = 0; i < remotes.size(); i++) {
             script.unstash "prs-${remotes[i]}"
         }
 
         def msgLines = []
-        msgLines << "@daobt_548"
+        msgLines << "${tagNames}"
         // Use index-based loop to avoid capturing a non-serializable iterator
         for (int i = 0; i < remotes.size(); i++) {
             def remote = remotes[i]
