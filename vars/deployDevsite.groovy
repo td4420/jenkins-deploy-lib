@@ -12,11 +12,11 @@ def generateProcessor() {
         .findAll { it }
 
     def REMOTE_URL = [
-        "abenson"   : "https://pwa.abenson-shop.online/",
-        "automatic" : "https://pwa-automatic.abenson-shop.online/",
-        "electro": "https://pwa-electro.abenson-shop.online/",
-        "abensonhome": "http://pwa-abensonhome.abenson-shop.online/",
-        "abz": "https://pwa-abz.abenson-shop.online/"
+        "abenson"   : "http://v556pwa.bssdev.cloud/",
+        "automatic" : "https://v556pwa-au.bssdev.cloud/",
+        "electro": "https://v556pwa-ew.bssdev.cloud/",
+        "abensonhome": "https://v556pwa-abh.bssdev.cloud/",
+        "abz": "https://v556pwa-abz.bssdev.cloud/"
     ]
 
     def branches = [:]
@@ -31,13 +31,12 @@ def generateProcessor() {
                             "cd public_html && bash ./deploy.sh '${remote}' '${params.BRANCH}'"
                         """,
                         returnStatus: true
-                    )             
+                    )
                     
                     if (status == 0) {
-                        echo "✅ Deployment succeeded"
+                        NotifyUtils.sendNotification(this, "${params.TAG_NAMES} Deploy dev site [${remote}](${REMOTE_URL[remote]}) failed", 1, env.BLUE_LINK)
                     } else {
-                        echo "❌ Deployment failed (exit code: ${status})"
-                        error("SSH deploy failed")
+                        NotifyUtils.sendNotification(this, "${params.TAG_NAMES} Deploy dev site [${remote}](${REMOTE_URL[remote]}) done", 0, env.BLUE_LINK)
                     }
                 }
             }
