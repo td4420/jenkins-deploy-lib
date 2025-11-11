@@ -34,9 +34,9 @@ def generateProcessor() {
                     )
                     
                     if (status == 0) {
-                        NotifyUtils.sendNotification(this, "${params.TAG_NAMES} Deploy dev site [${remote}](${REMOTE_URL[remote]}) failed", 1, env.BLUE_LINK)
-                    } else {
                         NotifyUtils.sendNotification(this, "${params.TAG_NAMES} Deploy dev site [${remote}](${REMOTE_URL[remote]}) done", 0, env.BLUE_LINK)
+                    } else {
+                        NotifyUtils.sendNotification(this, "${params.TAG_NAMES} Deploy dev site [${remote}](${REMOTE_URL[remote]}) failed", 1, env.BLUE_LINK)
                     }
                 }
             }
