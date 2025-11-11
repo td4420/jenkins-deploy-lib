@@ -24,9 +24,21 @@ def generateProcessor() {
         branches["Deploy PWA ${remote}"] = {
             node {
                 sshagent([env.SSH_CRED]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no -p ${env.SSH_PORT} ${env.SSH_USER_NAME}@${env.SSH_REMOTE} "cd public_html && bash ./deploy.sh '${remote}' '${params.BRANCH}'"
-                      """
+                    def status = sh(
+                        script: """
+                            ssh -o StrictHostKeyChecking=no -p ${env.SSH_PORT} \
+                            ${env.SSH_USER_NAME}@${env.SSH_REMOTE} \
+                            "cd public_html && bash ./deploy.sh '${remote}' '${params.BRANCH}'"
+                        """,
+                        returnStatus: true
+                    )             
+                    
+                    if (status == 0) {
+                        echo "✅ Deployment succeeded"
+                    } else {
+                        echo "❌ Deployment failed (exit code: ${status})"
+                        error("SSH deploy failed")
+                    }
                 }
             }
         }
